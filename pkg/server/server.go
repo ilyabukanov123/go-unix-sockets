@@ -53,17 +53,18 @@ func (s *server) serve(ctx context.Context) error {
 }
 
 // serve читает информацию из соединения и пишет в это соединение
-func serve(connect net.Conn, srv *server, ctx context.Context) {
+func serve(connect net.Conn, srv *server, ctx context.Context) error {
 	defer connect.Close()
 	buf := make([]byte, 1024)
 	length, err := connect.Read(buf)
 	if err != nil {
-		return
+		return fmt.Errorf("произошла ошибка при чтении сообщения из подключения:%s", err)
 	}
 
 	response := srv.handler(buf[:length])
 	_, err = connect.Write(response)
 	if err != nil {
-		return
+		return fmt.Errorf("произошла ошибка при записи сообщения в подключение:%s", err)
 	}
+	return nil
 }
